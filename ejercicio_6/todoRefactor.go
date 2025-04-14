@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 )
@@ -65,11 +66,15 @@ func crearTarea(action string) Tarea {
 	return Tarea{nombre: nombre, descripcion: descr}
 }
 
-func obtenerIndice(action string) int {
+func (lista *ListaTareas) obtenerIndice(action string) (int, error) {
 	fmt.Printf("Ingrese indice de la tarea que desea %s: \n ", action)
 	var ind int
 	fmt.Scanln(&ind)
-	return ind
+
+	if ind < 0 || ind >= len(lista.tareas) {
+		return -1, errors.New("indice fuera de rango")
+	}
+	return ind, nil
 }
 func main() {
 	lista := ListaTareas{}
@@ -84,18 +89,29 @@ func main() {
 			lista.agregarTarea(t)
 		case 2:
 			//Marcar como completada
-			ind := obtenerIndice("marcar como completada")
+			ind, err := lista.obtenerIndice("marcar como completada")
+			if err != nil {
+				fmt.Println("Error", err)
+				break
+			}
 			lista.marcarCompletada(ind)
 
 		case 3:
 			//Editar
-			ind := obtenerIndice("editar")
-
+			ind, err := lista.obtenerIndice("editar")
+			if err != nil {
+				fmt.Println("Error", err)
+				break
+			}
 			t := crearTarea("editar")
 			lista.editarTarea(ind, t)
 		case 4:
 			//Eliminar
-			ind := obtenerIndice("eliminar")
+			ind, err := lista.obtenerIndice("eliminar")
+			if err != nil {
+				fmt.Println("Error", err)
+				break
+			}
 			lista.eliminarTarea(ind)
 		case 5:
 			fmt.Println("Saliendo del programa...")
