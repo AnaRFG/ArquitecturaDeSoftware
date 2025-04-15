@@ -8,5 +8,4 @@
 4) *Juego de adivinar número* ✅
 5) *Lista de Tareas* ✅
 6) *Lista de Tareas Refactorizado - Manejo de errores* ✅
-7) *Escribir Archivo* --> Filmina manejo de archivos
-8) *Gestor de Contactos* --> Filmina manejo de archivos
+7) *Gestor de Contactos* ✅
