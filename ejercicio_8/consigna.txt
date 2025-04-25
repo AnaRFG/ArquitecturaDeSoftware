@@ -1,0 +1,10 @@
+El programa debe proporcionar el acceso a una tienda de vinilos. Usando gin-gonic se deben crear los endpoints para:
+
+Visualizar el listado de todos los álbumes en formato json. GET /albums
+Agregar un nuevo álbun. POST /albums
+Obtener los datos de un álbum específico. GET /albums/:id
+Actualizar los datos de un álbum específico. PUT /albums/:id
+Eliminar un álbum específico. DELETE /albums/:id
+Estos datos se guardarán en la memoria temporal y no en una Base de Datos (para simplificar el desarrollo).
+
+Los albums deben contener: id, título, artista, año y precio. Los status-code se deben obtener del package http.
