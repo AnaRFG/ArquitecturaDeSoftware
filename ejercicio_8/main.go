@@ -1,37 +1,36 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 type album struct {
-	ID     string  `json:"id"`
+	ID     uint    `json:"id" gorm:"primarykey;autoIncrement"`
 	Title  string  `json:"title"`
 	Artist string  `json:"artist"`
 	Year   uint    `json:"year"`
 	Price  float64 `json:"price"`
 }
 
-var albums = []album{
-	{ID: "1", Title: "The Number of the Beast", Artist: "Iron Maiden", Year: 1982, Price: 25.19},
-	{ID: "2", Title: "Youthanasia", Artist: "Medadeth", Year: 1994, Price: 13.65},
-	{ID: "3", Title: "Master of Puppets", Artist: "Metallica", Year: 1986, Price: 20.97},
-}
-
 func getAlbums(ctx *gin.Context) {
+	var albums []Album
+	db.Find(&albums)
 	ctx.IndentedJSON(http.StatusOK, albums)
 }
 
 func postAlbums(ctx *gin.Context) {
-	var newAlbum album
+	var newAlbum Album
 
 	if err := ctx.BindJSON(&newAlbum); err != nil {
 		return
 	}
 
-	albums = append(albums, newAlbum)
+	db.Create(&newAlbum)
 	ctx.IndentedJSON(http.StatusCreated, newAlbum)
 }
 
@@ -80,7 +79,26 @@ func deleteAlbumByID(ctx *gin.Context) {
 
 }
 
+var db *gorm.DB
+
+func initDB() (*gorm.DB, error) {
+	//usuario:password@tcp(ruta:puerto)/baseDeDatos
+	dsn := "root:4818841ro@tcp(localhost:3307)/db_vinilos"
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+	log.Println("Conexion a la base de datos exitosa")
+	return db, nil
+}
+
 func main() {
+	var err error
+	db, err = initDB()
+
+	if err != nil {
+		log.Fatal(err)
+	}
 	router := gin.Default()
 	router.GET("/albums", getAlbums)
 	router.POST("/albums", postAlbums)
