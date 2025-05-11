@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type album struct {
+type Album struct {
 	ID     uint    `json:"id" gorm:"primarykey;autoIncrement"`
 	Title  string  `json:"title"`
 	Artist string  `json:"artist"`
@@ -36,46 +36,51 @@ func postAlbums(ctx *gin.Context) {
 
 func getAlbumsByID(ctx *gin.Context) {
 	id := ctx.Param("id")
+	var album Album
 
-	for _, a := range albums {
-		if a.ID == id {
-			ctx.IndentedJSON(http.StatusOK, a)
-			return
-		}
+	result := db.First(&album, "id = ?", id)
+	if result.Error != nil {
+		ctx.IndentedJSON(http.StatusNotFound, gin.H{"message": "album no encontrado"})
+		return
 	}
-	ctx.IndentedJSON(http.StatusNotFound, gin.H{"message": "album no encontrado"})
+	ctx.IndentedJSON(http.StatusOK, album)
+
 }
 
 func putAlbumByID(ctx *gin.Context) {
 	id := ctx.Param("id")
-	var modifyAlbum album
+	var modifyAlbum Album //datos ingresados por el usuario
+	var album Album       //album de la base de datos
+
+	result := db.First(&album, "id = ?", id)
+	if result.Error != nil {
+		ctx.IndentedJSON(http.StatusNotFound, gin.H{"message": "album no encontrado"})
+		return
+	}
 
 	if err := ctx.BindJSON(&modifyAlbum); err != nil {
 		ctx.IndentedJSON(http.StatusNotFound, gin.H{"message": "datos incorrectos"})
 		return
 	}
 
-	for index, a := range albums {
-		if a.ID == id {
-			albums[index] = modifyAlbum
-			albums[index].ID = id
-			ctx.IndentedJSON(http.StatusOK, albums[index])
-			return
-		}
-	}
+	album.Title = modifyAlbum.Title
+	album.Artist = modifyAlbum.Artist
+	album.Year = modifyAlbum.Year
+	album.Price = modifyAlbum.Price
+
+	db.Save(&album)
+	ctx.IndentedJSON(http.StatusOK, album)
 }
 
 func deleteAlbumByID(ctx *gin.Context) {
 	id := ctx.Param("id")
 
-	for index, a := range albums {
-		if a.ID == id {
-			albums = append(albums[:index], albums[index+1:]...)
-			ctx.IndentedJSON(http.StatusOK, gin.H{"message": "album eliminado"})
-			return
-		}
+	result := db.Delete(&Album{}, "id = ?", id)
+
+	if result.RowsAffected == 0 {
+		ctx.IndentedJSON(http.StatusNotFound, gin.H{"massage": "album no encontrado"})
 	}
-	ctx.IndentedJSON(http.StatusNotFound, gin.H{"massage": "album no encontrado"})
+	ctx.IndentedJSON(http.StatusOK, gin.H{"message": "album eliminado"})
 
 }
 
