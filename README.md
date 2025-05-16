@@ -9,4 +9,4 @@
 5) *Lista de Tareas* ✅
 6) *Lista de Tareas Refactorizado - Manejo de errores* ✅
 7) *Gestor de Contactos* ✅
-8) *GO MODULES* 
+8) *Vynil API* --> falta el 2da refactor 
